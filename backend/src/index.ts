@@ -1,5 +1,5 @@
 
-import express from 'express';
+import express, { Request, Response } from 'express';
 import prisma from './config/prismaClient';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -21,7 +21,7 @@ app.set('prisma', prisma);
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   res.send('API Credenciamento e Refeições - Backend');
 });
 
