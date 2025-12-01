@@ -3,8 +3,8 @@ node_modules/
 painel/node_modules/
 scanner/node_modules/
 
-# Build outputs
-dist/
+# Build outputs - KEEP dist/ for Railway
+# dist/
 backend/dist/
 painel/dist/
 scanner/dist/
