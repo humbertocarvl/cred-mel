@@ -2,19 +2,17 @@
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
-    // "rootDir": "./src",
-    // "outDir": "./dist",
+    // set rootDir to repository backend root so files in `prisma/` are included by the TS program
+    "rootDir": ".",
+    "outDir": "./dist",
 
     // Environment Settings
-    // See also https://aka.ms/tsconfig/module
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "target": "esnext",
-    "types": [],
-    // For nodejs:
-    // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
+    // Use CommonJS so the compiled files can be run with `node dist/index.js`
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "target": "ES2021",
+    "lib": ["ES2021"],
+    "types": ["node"],
 
     // Other Outputs
     "sourceMap": true,
@@ -41,5 +39,17 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowJs": false
   }
+  ,
+  "include": [
+    "src",
+    "prisma",
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
