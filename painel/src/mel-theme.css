@@ -1,0 +1,72 @@
+/*
+  Tema MEL - Mulheres em Lutas
+  Paleta: amarelo, dourado, preto, branco, cinza suave
+  Elementos: bordas arredondadas, cards, botões suaves, fontes modernas
+*/
+
+:root {
+  --mel-yellow: #FFD600;
+  --mel-gold: #FFC107;
+  --mel-black: #222;
+  --mel-white: #fff;
+  --mel-gray: #f7f7f7;
+  --mel-border-radius: 16px;
+  --mel-font-title: 'Montserrat', 'Arial', sans-serif;
+  --mel-font-body: 'Roboto', 'Arial', sans-serif;
+}
+
+body {
+  background: var(--mel-gray);
+  color: var(--mel-black);
+  font-family: var(--mel-font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--mel-font-title);
+  color: var(--mel-gold);
+  margin-bottom: 0.5em;
+}
+
+.card {
+  background: var(--mel-white);
+  border-radius: var(--mel-border-radius);
+  box-shadow: 0 2px 8px rgba(34,34,34,0.08);
+  padding: 2em;
+  margin-bottom: 2em;
+}
+
+.button {
+  background: var(--mel-yellow);
+  color: var(--mel-black);
+  border: none;
+  border-radius: var(--mel-border-radius);
+  padding: 0.75em 2em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.button:hover {
+  background: var(--mel-gold);
+}
+
+.navbar {
+  background: var(--mel-gold);
+  color: var(--mel-black);
+  border-radius: var(--mel-border-radius);
+  padding: 1em 2em;
+  margin-bottom: 2em;
+  font-family: var(--mel-font-title);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+input, select, textarea {
+  border-radius: var(--mel-border-radius);
+  border: 1px solid var(--mel-gold);
+  padding: 0.5em 1em;
+  margin-bottom: 1em;
+  font-family: var(--mel-font-body);
+}
+
+/* Adicione ícones/abelhas/flor como SVG ou imagens nos componentes para reforçar a identidade */

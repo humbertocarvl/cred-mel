@@ -1,0 +1,8 @@
+. # Root .gitignore contains common rules (node_modules, dist, logs, env etc.)
+# Add scanner-specific ignores below if necessary
+
+# local dev build output
+dist-ssr/
+
+# keep local overrides here if needed
+*.local

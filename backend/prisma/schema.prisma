@@ -1,0 +1,76 @@
+model MealOption {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  meals       Meal[]
+}
+// Prisma schema para credenciamento e refeições
+// Ajuste os campos conforme necessidade
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource datasource {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  active    Boolean  @default(true)
+  role      String
+  auditLogs AuditLog[]
+}
+
+model Participant {
+  id            Int      @id @default(autoincrement())
+  name          String
+  city          String
+  state         String
+  email         String
+  whatsapp      String
+  contribuicao  Boolean @default(false)
+  alojamento    Boolean @default(false)
+  tipoInscricao TipoInscricao
+  credenciada   Boolean @default(false)
+  credenciada_em DateTime?
+  credencial    String?
+  wristband     Wristband?
+  meals         Meal[]
+}
+
+enum TipoInscricao {
+  comunicacao
+  organizacao
+  parlamentar
+  participante
+}
+model Wristband {
+  id             String   @id
+  assigned_at    DateTime @default(now())
+  participant    Participant @relation(fields: [participantId], references: [id])
+  participantId  Int      @unique
+}
+
+model Meal {
+  id            Int      @id @default(autoincrement())
+  participant   Participant @relation(fields: [participantId], references: [id])
+  participantId Int
+  mealOption   MealOption @relation(fields: [mealOptionId], references: [id])
+  mealOptionId Int
+  date         DateTime
+  served_at    DateTime @default(now())
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+  action    String
+  details   String
+  created_at DateTime @default(now())
+}
