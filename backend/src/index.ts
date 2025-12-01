@@ -25,6 +25,10 @@ app.get('/', (req: Request, res: Response) => {
   res.send('API Credenciamento e Refeições - Backend');
 });
 
+app.get('/api/_health', (req: Request, res: Response) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Rotas principais
 
 app.use('/api/auth', authRoutes);
