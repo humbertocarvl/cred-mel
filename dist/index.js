@@ -18,7 +18,16 @@ const devRoutes_1 = __importDefault(require("./routes/devRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.set('prisma', prismaClient_1.default);
-app.use((0, cors_1.default)());
+// CORS: permitir envio por formulários do painel e preflight (OPTIONS)
+const corsOptions = {
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+    credentials: true,
+    optionsSuccessStatus: 204
+};
+app.use((0, cors_1.default)(corsOptions));
+app.options('*', (0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
 app.get('/', (req, res) => {
     res.send('API Credenciamento e Refeições - Backend');

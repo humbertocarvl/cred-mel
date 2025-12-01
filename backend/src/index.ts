@@ -18,7 +18,19 @@ dotenv.config();
 
 const app = express();
 app.set('prisma', prisma);
-app.use(cors());
+
+// CORS: permitir envio por formulários do painel e preflight (OPTIONS)
+const corsOptions = {
+  origin: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+  credentials: true,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 app.use(express.json());
 
 app.get('/', (req: Request, res: Response) => {
