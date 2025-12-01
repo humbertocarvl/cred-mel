@@ -93,7 +93,7 @@ export const bulkCreateParticipants = async (req: Request, res: Response) => {
     // Only consider deduplication by email for rows that have an email
     const emails = valid.filter(v => v.email).map(v => v.email as string);
     const existing = emails.length > 0 ? await prisma.participant.findMany({ where: { email: { in: emails } }, select: { email: true } }) : [];
-    const existingSet = new Set(existing.map(e => e.email));
+    const existingSet = new Set(existing.map((e: { email: string }) => e.email));
 
     const toInsert = valid.filter(v => !(v.email && existingSet.has(v.email)));
     const skipped = valid.filter(v => v.email && existingSet.has(v.email)).length;
