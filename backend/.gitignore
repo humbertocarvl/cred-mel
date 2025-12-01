@@ -1,5 +1,0 @@
-. # Root .gitignore contains common rules (node_modules, dist, logs, env etc.)
-# Add backend-specific ignores below if necessary
-
-# Keep local prisma client/generated files out of Git if desired
-.prisma/

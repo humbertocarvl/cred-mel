@@ -1,9 +1,3 @@
-model MealOption {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  meals       Meal[]
-}
 // Prisma schema para credenciamento e refeições
 // Ajuste os campos conforme necessidade
 
@@ -49,11 +43,19 @@ enum TipoInscricao {
   parlamentar
   participante
 }
+
 model Wristband {
   id             String   @id
   assigned_at    DateTime @default(now())
   participant    Participant @relation(fields: [participantId], references: [id])
   participantId  Int      @unique
+}
+
+model MealOption {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  meals       Meal[]
 }
 
 model Meal {
