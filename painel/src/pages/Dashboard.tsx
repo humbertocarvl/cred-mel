@@ -24,6 +24,7 @@ const Dashboard: React.FC = () => {
     async function fetchData() {
       setLoading(true);
       try {
+        console.log('Carregando dados do dashboard...');
         const [participantsRes, mealsRes, mealOptionsRes] = await Promise.all([
           api.get('/participants'),
           api.get('/meals'),
@@ -32,6 +33,10 @@ const Dashboard: React.FC = () => {
         const participants = participantsRes.data;
         const meals = mealsRes.data;
         const mealOptions = mealOptionsRes.data;
+
+        console.log('Participantes:', participants.length);
+        console.log('Meals:', meals.length);
+        console.log('Meal Options:', mealOptions.length);
 
         setTotals({
           inscritas: participants.length,

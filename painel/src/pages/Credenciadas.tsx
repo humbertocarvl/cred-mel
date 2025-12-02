@@ -93,18 +93,27 @@ const Credenciadas: React.FC = () => {
     setEditData(null);
   }
 
-  function handleDelete(id: number) {
+  function handleUncredential(id: number) {
     setDeleteId(id);
   }
 
-  function confirmDelete() {
-    api.delete(`/participants/${deleteId}`).then(() => {
+  function confirmUncredential() {
+    if (!deleteId) return;
+    api.put(`/participants/${deleteId}`, {
+      credenciada: false,
+      credenciada_em: null,
+      credencial: null
+    }).then(() => {
       setParticipants(prev => prev.filter(p => p.id !== deleteId));
+      setDeleteId(null);
+    }).catch(err => {
+      console.error('Erro ao descredenciar:', err);
+      alert('Erro ao descredenciar participante');
       setDeleteId(null);
     });
   }
 
-  function cancelDelete() {
+  function cancelUncredential() {
     setDeleteId(null);
   }
 
@@ -150,7 +159,7 @@ const Credenciadas: React.FC = () => {
                     <div className="small">Credenciada em: {p.credenciada_em ? new Date(p.credenciada_em).toLocaleDateString() : '-'}</div>
                     <div className="actions">
                       <button onClick={() => handleEdit(p.id)} className="button" style={{ marginRight: '0.5em', background: 'var(--mel-gold)' }}>Editar</button>
-                      <button onClick={() => handleDelete(p.id)} className="button" style={{ background: 'var(--mel-yellow)' }}>Excluir</button>
+                      <button onClick={() => handleUncredential(p.id)} className="button" style={{ background: 'var(--mel-yellow)' }}>Descredenciar</button>
                     </div>
                   </div>
                 ))}
@@ -179,6 +188,15 @@ const Credenciadas: React.FC = () => {
         {deleteId && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
             <Card>
+              <h2>Descredenciar participante?</h2>
+              <p style={{ marginBottom: '1em' }}>Isso removerá o credenciamento, a data e o QR code associado.</p>
+              <div className="modal-actions">
+                <button onClick={confirmUncredential} className="button" style={{ background: '#dc2626', color: 'white', marginRight: '0.5em' }}>Descredenciar</button>
+                <button onClick={cancelUncredential} className="button">Cancelar</button>
+              </div>
+            </Card>
+          </div>
+        )}
               <p style={{ color: 'var(--mel-black)', fontWeight: 'bold', marginBottom: '1em' }}>Confirma a exclusão?</p>
               <button onClick={confirmDelete} className="button" style={{ background: 'var(--mel-yellow)', marginRight: '1em' }}>Sim</button>
               <button onClick={cancelDelete} className="button" style={{ background: 'var(--mel-gray)' }}>Não</button>

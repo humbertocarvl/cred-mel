@@ -36,11 +36,15 @@ const MealOptions: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
+    console.log('Carregando meal options...');
     api.get('/meal-options').then(res => {
+      console.log('Meal options recebidas:', res.data);
       setOptions(res.data || []);
       setLoading(false);
     }).catch(err => {
       console.error('Erro ao carregar refeições:', err);
+      console.error('Erro detalhado:', err.response?.data);
+      alert('Erro ao carregar refeições: ' + (err.response?.data?.message || err.message));
       setLoading(false);
     });
   }, []);
@@ -69,17 +73,7 @@ const MealOptions: React.FC = () => {
     setDescription(opt.description || '');
   }
 
-  function handleDelete(id: number) {
-    if (!confirm('Tem certeza que deseja excluir esta refeição?')) return;
-    api.delete(`/meal-options/${id}`).then(() => {
-      setOptions(options.filter(opt => opt.id !== id));
-      alert('Refeição excluída com sucesso!');
-    }).catch(err => {
-      console.error('Erro ao excluir refeição:', err);
-      const errorMessage = err?.response?.data?.message || 'Erro ao excluir refeição';
-      alert(errorMessage);
-    });
-  }
+  // Função de exclusão removida - meal options não devem ser excluídas
 
   async function loadMealParticipants(mealOptionId: number) {
     if (mealParticipants[mealOptionId]) return; // Já carregado
@@ -169,9 +163,6 @@ const MealOptions: React.FC = () => {
                       <td>{opt.description}</td>
                       <td>
                         <button className="button" style={{ background: 'var(--mel-gold)', marginRight: '0.5rem' }} onClick={() => handleEdit(opt)}>Editar</button>
-                        <button className="button" style={{ background: 'var(--mel-yellow)', marginRight: '0.5rem' }} onClick={() => handleDelete(opt.id)}>
-                          Excluir
-                        </button>
                         <button className="button" style={{ background: 'var(--mel-gold)', marginRight: '0.5rem' }} onClick={() => handleExpandMeal(opt.id)}>
                           {expandedMeal === opt.id ? 'Ocultar' : 'Ver'} Participantes
                         </button>
