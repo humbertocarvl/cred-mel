@@ -7,7 +7,7 @@
     "dev": "ts-node-dev --respawn src/index.ts",
     "start": "node dist/index.js",
     "build": "tsc",
-    "postinstall": "npm run build && npx prisma generate",
+    "postinstall": "npm run build && npx prisma migrate deploy && npx prisma generate",
     "migrate:deploy": "npx prisma migrate deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -26,11 +26,11 @@
     "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3",
+    "prisma": "^6.19.0",
     "redis": "^5.10.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "prisma": "^6.19.0"
   }
 }
