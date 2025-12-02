@@ -35,38 +35,53 @@ const QRCodeReader: React.FC<{ onScan: (data: string) => void }> = ({ onScan }) 
         if (!videoRef.current) return;
         readerRef.current = new BrowserMultiFormatReader();
 
-        // list devices
-        let devices = await readerRef.current.listVideoInputDevices();
+        // list devices via navigator.mediaDevices (more compatible)
+        let devicesInfo: MediaDeviceInfo[] = [];
+        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+          try {
+            devicesInfo = await navigator.mediaDevices.enumerateDevices();
+          } catch (e) {
+            console.warn('enumerateDevices failed', e);
+          }
+        }
 
-        // If labels are empty (no permission yet), request permission to get labels
-        const hasLabels = devices.some(d => d.label && d.label.length > 0);
-        if (!hasLabels && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const videoDevices = (devicesInfo || []).filter(d => d.kind === 'videoinput');
+        // If no labels (no permission), try to request permission to get labels
+        if (videoDevices.length === 0 && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           try {
             await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-            devices = await readerRef.current.listVideoInputDevices();
+            devicesInfo = await navigator.mediaDevices.enumerateDevices();
           } catch (permErr) {
             console.warn('Camera permission denied or getUserMedia failed', permErr);
             setCameraError('Permissão de câmera negada ou indisponível');
           }
         }
 
-        setAvailableDevices(devices || null);
+        const finalDevices = (devicesInfo || []).filter(d => d.kind === 'videoinput');
+        setAvailableDevices(finalDevices.length > 0 ? (finalDevices as any) : null);
 
         // choose rear camera if available
         let deviceId: string | undefined;
-        if (devices && devices.length > 0) {
-          const back = devices.find(d => /back|rear|trase|environment|externa/i.test(d.label));
-          deviceId = (back || devices[0]).deviceId;
+        if (finalDevices && finalDevices.length > 0) {
+          const back = finalDevices.find(d => /back|rear|trase|environment|externa/i.test(d.label));
+          deviceId = (back || finalDevices[0]).deviceId;
         }
 
         activeDecode = true;
-        readerRef.current.decodeFromVideoDeviceContinuously(deviceId || undefined, videoRef.current, (result, err) => {
-          if (result) {
-            handleResult(result.getText());
-          } else if (err && !(err instanceof NotFoundException)) {
-            console.error('Decode error', err);
-          }
-        });
+        // start continuous decode from chosen device (deviceId can be undefined to use default)
+        try {
+          // decodeFromVideoDevice accepts deviceId and a video element and uses callback continuously
+          readerRef.current.decodeFromVideoDevice(deviceId || undefined, videoRef.current as HTMLVideoElement, (result: any, err: any) => {
+            if (result) {
+              handleResult(result.getText());
+            } else if (err && !(err instanceof NotFoundException)) {
+              console.error('Decode error', err);
+            }
+          });
+        } catch (e) {
+          console.error('decodeFromVideoDevice failed', e);
+          setCameraError('Leitor indisponível neste dispositivo');
+        }
       } catch (err: any) {
         console.error('ZXing init error', err);
         setCameraError(String(err?.message || err));
