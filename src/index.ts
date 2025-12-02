@@ -29,7 +29,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // responde a preflight sem passar por auth
+app.options('/*', cors(corsOptions)); // responde a preflight sem passar por auth
 
 app.use(express.json());
 

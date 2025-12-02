@@ -27,7 +27,7 @@ const corsOptions = {
     optionsSuccessStatus: 204
 };
 app.use((0, cors_1.default)(corsOptions));
-app.options('*', (0, cors_1.default)(corsOptions));
+app.options('/*', (0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
 app.get('/', (req, res) => {
     res.send('API Credenciamento e Refeições - Backend');
