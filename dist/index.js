@@ -27,8 +27,10 @@ const corsOptions = {
     optionsSuccessStatus: 204
 };
 app.use((0, cors_1.default)(corsOptions));
-app.options('/*', (0, cors_1.default)(corsOptions));
+
 app.use(express_1.default.json());
+// O middleware `cors` já responde a preflight (OPTIONS). Evitamos usar `app.options` aqui
+// porque algumas versões do path-to-regexp rejeitam padrões como '*' ou '/*'.
 app.get('/', (req, res) => {
     res.send('API Credenciamento e Refeições - Backend');
 });

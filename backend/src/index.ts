@@ -29,8 +29,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('/*', cors(corsOptions));
 
+// O middleware `cors` já responde a preflight (OPTIONS). Evitamos usar `app.options` aqui
+// porque algumas versões do path-to-regexp rejeitam padrões como '*' ou '/*'.
 app.use(express.json());
 
 app.get('/', (req: Request, res: Response) => {
