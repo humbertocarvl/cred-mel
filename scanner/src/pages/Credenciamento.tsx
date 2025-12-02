@@ -35,55 +35,28 @@ const Credenciamento: React.FC = () => {
   }, [success]);
 
   function handleScan(value: string) {
-    // set raw value and try to resolve participant by credencial
     setQrValue(value);
     setError('');
     setSuccess('');
+    
+    // Buscar se já existe alguém com este QR
     (async () => {
       try {
         const res = await api.get(`/participants?credencial=${encodeURIComponent(value)}`);
         const p = res.data && res.data[0];
-        if (!p) {
-          setError('Nenhum participante encontrado para este código.');
-          return;
-        }
-        // auto-select found participant and ensure it's visible in the list
-        setSelectedId(p.id);
-        setParticipants(prev => {
-          const exists = prev.find(x => x.id === p.id);
-          if (exists) return prev;
-          return [p, ...prev];
-        });
-        setSuccess(`${p.name} identificado(a)`);
-        setTimeout(() => setSuccess(''), 2000);
-
-        // Auto-submit (opção escolhida): se participante ainda não estiver credenciado
-        if (!p.credenciada && !isSubmitting) {
-          setIsSubmitting(true);
-          try {
-            await api.put(`/participants/${p.id}`, {
-              credenciada: true,
-              credenciada_em: new Date().toISOString(),
-              credencial: value,
-            });
-            setSuccess(`✓ ${p.name} credenciado(a) com sucesso!`);
-            // remove from list of not-yet-credentialed
-            setParticipants(prev => prev.filter(x => x.id !== p.id));
-            setSelectedId(null);
-            setQrValue('');
-            setTimeout(() => setSuccess(''), 3000);
-          } catch (err) {
-            setError('Erro ao credenciar participante automaticamente.');
-          } finally {
-            // delay to avoid duplicates from rapid scans (matches QR cooldown)
-            setTimeout(() => setIsSubmitting(false), 3000);
-          }
-        } else if (p.credenciada) {
-          setError('Participante já está credenciado(a).');
-          setTimeout(() => setError(''), 3000);
+        
+        if (p && p.credenciada) {
+          // QR já está associado a uma participante credenciada
+          setError(`Este QR já está associado a ${p.name} (${p.city}/${p.state})`);
+          setSelectedId(null);
+          setTimeout(() => setError(''), 5000);
+        } else if (!p) {
+          // QR livre - permitir associação manual
+          setSuccess('QR code livre! Selecione a participante e clique em Credenciar.');
+          setTimeout(() => setSuccess(''), 5000);
         }
       } catch (err) {
-        setError('Erro ao buscar participante pelo código.');
+        console.error('Erro ao buscar participante:', err);
       }
     })();
   }
@@ -93,19 +66,42 @@ const Credenciamento: React.FC = () => {
       setError('Selecione uma participante e escaneie a pulseira.');
       return;
     }
+    
     setError('');
+    setIsSubmitting(true);
+    
     try {
+      // Verificar novamente se o QR não foi associado enquanto selecionava
+      const checkRes = await api.get(`/participants?credencial=${encodeURIComponent(qrValue)}`);
+      const existing = checkRes.data && checkRes.data[0];
+      
+      if (existing && existing.credenciada && existing.id !== selectedId) {
+        setError(`Este QR já foi associado a ${existing.name} por outra pessoa.`);
+        setIsSubmitting(false);
+        return;
+      }
+      
       await api.put(`/participants/${selectedId}`, {
         credenciada: true,
         credenciada_em: new Date().toISOString(),
         credencial: qrValue,
       });
-      setSuccess('Credenciamento realizado com sucesso!');
+      
+      const participantName = participants.find(p => p.id === selectedId)?.name || 'Participante';
+      setSuccess(`✓ ${participantName} credenciado(a) com sucesso!`);
+      
+      // Remover da lista de não credenciadas
+      setParticipants(prev => prev.filter(x => x.id !== selectedId));
       setSelectedId(null);
       setQrValue('');
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
-      setError('Erro ao credenciar participante.');
+      
+      setTimeout(() => {
+        setSuccess('');
+        setIsSubmitting(false);
+      }, 3000);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Erro ao credenciar participante.');
+      setIsSubmitting(false);
     }
   }
 
@@ -136,6 +132,13 @@ const Credenciamento: React.FC = () => {
               return p ? (
                 <div style={{ marginTop: 12 }}>
                   <ParticipantCardMobile participant={p} />
+                  <MobileButton 
+                    onClick={handleCredenciar} 
+                    disabled={!qrValue || isSubmitting}
+                    style={{ marginTop: 12, width: '100%' }}
+                  >
+                    {isSubmitting ? 'Credenciando...' : 'Credenciar'}
+                  </MobileButton>
                 </div>
               ) : null;
             })()}
