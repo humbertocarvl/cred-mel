@@ -6,3 +6,4 @@ dist-ssr/
 
 # keep local overrides here if needed
 *.local
+.env

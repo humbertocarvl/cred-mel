@@ -1,0 +1,24 @@
+{
+  "name": "MEL RS - Sistema de Credenciamento",
+  "short_name": "MEL RS",
+  "description": "Sistema de credenciamento e gestão de refeições do MEL RS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFD600",
+  "theme_color": "#FFD600",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

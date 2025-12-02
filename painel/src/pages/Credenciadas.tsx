@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
 import api from '../services/api';
 import ParticipantsForm from './ParticipantsForm';
 import Card from '../components/Card';
+import Pagination from '../components/Pagination';
+
+const ITEMS_PER_PAGE = 50;
 
 interface Participant {
   id: number;
@@ -27,6 +30,7 @@ const Credenciadas: React.FC = () => {
   const [editId, setEditId] = useState<number | null>(null);
   const [editData, setEditData] = useState<any | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setLoading(true);
@@ -48,26 +52,26 @@ const Credenciadas: React.FC = () => {
         p.tipoInscricao.toLowerCase().includes(search.toLowerCase())
       )
     );
+    setCurrentPage(1); // Reset para primeira página ao filtrar
   }, [search, participants]);
 
-  function exportCSV() {
-    const headers = ['Nome', 'Cidade', 'Estado', 'E-mail', 'Telefone', 'Contribuição', 'Alojamento', 'Tipo de inscrição', 'Credenciada em', 'Credencial'];
-    const rows = filtered.map((p: Participant) => [
-      p.name,
-      p.city,
-      p.state,
-      p.email,
-      p.whatsapp,
-      p.contribuicao ? 'Sim' : 'Não',
-      p.alojamento ? 'Sim' : 'Não',
-      p.tipoInscricao,
-      p.credenciada_em ? new Date(p.credenciada_em).toLocaleString() : '-',
-      p.credencial || '-'
-    ]);
-    let csv = headers.join(',') + '\n';
-    csv += rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    saveAs(blob, 'credenciadas.csv');
+  function exportXLSX() {
+    const data = filtered.map((p: Participant) => ({
+      'Nome': p.name,
+      'Cidade': p.city,
+      'Estado': p.state,
+      'E-mail': p.email,
+      'Telefone': p.whatsapp,
+      'Contribuição': p.contribuicao ? 'Sim' : 'Não',
+      'Alojamento': p.alojamento ? 'Sim' : 'Não',
+      'Tipo de inscrição': p.tipoInscricao,
+      'Credenciada em': p.credenciada_em ? new Date(p.credenciada_em).toLocaleString() : '-',
+      'Credencial': p.credencial || '-'
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Credenciadas');
+    XLSX.writeFile(wb, 'credenciadas.xlsx');
   }
 
   function handleEdit(id: number) {
@@ -104,6 +108,11 @@ const Credenciadas: React.FC = () => {
     setDeleteId(null);
   }
 
+  // Paginação
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedData = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
   return (
     <div className="dashboard-mel" style={{ background: 'var(--mel-gray)', minHeight: '100vh', padding: '1em 0' }}>
       <div className="container">
@@ -117,7 +126,7 @@ const Credenciadas: React.FC = () => {
           onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, minWidth: '220px' }}
         />
-        <button onClick={exportCSV} className="button">Exportar CSV</button>
+        <button onClick={exportXLSX} className="button">Exportar XLSX</button>
           </div>
         </Card>
 
@@ -127,7 +136,7 @@ const Credenciadas: React.FC = () => {
           <Card>
             <div>
               <div className="cards-grid">
-                {filtered.map(p => (
+                {paginatedData.map(p => (
                   <div className="participant-card" key={p.id}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <strong>{p.name}</strong>
@@ -146,6 +155,11 @@ const Credenciadas: React.FC = () => {
                   </div>
                 ))}
               </div>
+              <Pagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </Card>
         )}

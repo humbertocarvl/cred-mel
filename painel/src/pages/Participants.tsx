@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
 import api from '../services/api';
 import ParticipantsForm from './ParticipantsForm';
 import Card from '../components/Card';
+import Pagination from '../components/Pagination';
+import { Link } from 'react-router-dom';
+
+const ITEMS_PER_PAGE = 50;
 
 const Participants: React.FC = () => {
     const [participants, setParticipants] = useState<any[]>([]);
@@ -13,6 +17,7 @@ const Participants: React.FC = () => {
     const [editId, setEditId] = useState<number | null>(null);
     const [editData, setEditData] = useState<any | null>(null);
     const [deleteId, setDeleteId] = useState<number | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
       setLoading(true);
@@ -30,15 +35,25 @@ const Participants: React.FC = () => {
         p.state?.toLowerCase().includes(search.toLowerCase()) ||
         p.email?.toLowerCase().includes(search.toLowerCase())
       ));
+      setCurrentPage(1); // Reset para primeira página ao filtrar
     }, [search, participants]);
 
-    function exportCSV() {
-      const headers = ['Nome', 'Cidade', 'Estado', 'E-mail'];
-      const rows = filtered.map(p => [p.name, p.city, p.state, p.email]);
-      let csv = headers.join(',') + '\n';
-      csv += rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      saveAs(blob, 'participantes.csv');
+    function exportXLSX() {
+      const data = filtered.map(p => ({
+        'Nome': p.name,
+        'Cidade': p.city,
+        'Estado': p.state,
+        'E-mail': p.email,
+        'Whatsapp': p.whatsapp,
+        'Contribuição': p.contribuicao ? 'Sim' : 'Não',
+        'Alojamento': p.alojamento ? 'Sim' : 'Não',
+        'Tipo Inscrição': p.tipoInscricao,
+        'Credenciada': p.credenciada ? 'Sim' : 'Não'
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Inscritas');
+      XLSX.writeFile(wb, 'inscritas.xlsx');
     }
 
     function handleAdd(data: any) {
@@ -90,6 +105,11 @@ const Participants: React.FC = () => {
       setDeleteId(null);
     }
 
+    // Paginação
+    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedData = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
     return (
       <div className="dashboard-mel" style={{ background: 'var(--mel-gray)', minHeight: '100vh', padding: '1em 0' }}>
         <div className="container">
@@ -117,9 +137,12 @@ const Participants: React.FC = () => {
               <button className="button" onClick={() => setShowForm(true)}>
                 Nova inscrição
               </button>
-              <button className="button" style={{ background: 'var(--mel-gold)' }} onClick={exportCSV}>
-                Exportar CSV
+              <button className="button" style={{ background: 'var(--mel-gold)' }} onClick={exportXLSX}>
+                Exportar XLSX
               </button>
+              <Link to="/importar" className="button" style={{ textDecoration: 'none', display: 'inline-block', background: 'var(--mel-yellow)' }}>
+                Importar Participantes
+              </Link>
             </div>
             {showForm && <ParticipantsForm onSubmit={handleAdd} />}
           </Card>
@@ -130,41 +153,50 @@ const Participants: React.FC = () => {
             ) : filtered.length === 0 ? (
               <div style={{ color: 'var(--mel-black)', fontWeight: 'bold' }}>Nenhuma inscrita cadastrada</div>
             ) : (
-              <table className="table-mel">
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>Cidade</th>
-                    <th>Estado</th>
-                    <th>E-mail</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map(p => (
-                    <tr key={p.id}>
-                      <td>{p.name}</td>
-                      <td>{p.city}</td>
-                      <td>{p.state}</td>
-                      <td>{p.email}</td>
-                      <td>
-                        <button className="button" style={{ marginRight: '0.5em', background: 'var(--mel-gold)' }} onClick={() => handleEdit(p.id)}>
-                          Editar
-                        </button>
-                        <button className="button" style={{ background: 'var(--mel-yellow)' }} onClick={() => handleDelete(p.id)}>
-                          Excluir
-                        </button>
-                      </td>
+              <>
+                <div className="table-wrapper">
+                  <table className="table-mel">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Cidade</th>
+                      <th>Estado</th>
+                      <th>E-mail</th>
+                      <th>Ações</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {paginatedData.map(p => (
+                      <tr key={p.id}>
+                        <td>{p.name}</td>
+                        <td>{p.city}</td>
+                        <td>{p.state}</td>
+                        <td>{p.email}</td>
+                        <td>
+                          <button className="button" style={{ marginRight: '0.5em', background: 'var(--mel-gold)' }} onClick={() => handleEdit(p.id)}>
+                            Editar
+                          </button>
+                          <button className="button" style={{ background: 'var(--mel-yellow)' }} onClick={() => handleDelete(p.id)}>
+                            Excluir
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                </div>
+                <Pagination 
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </>
             )}
           </Card>
 
           {editId !== null && (
-            <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-              <div className="card" style={{ background: 'var(--mel-white)', maxWidth: '500px', margin: 'auto', borderRadius: 'var(--mel-border-radius)', boxShadow: '0 2px 8px rgba(34,34,34,0.12)', padding: '2em' }}>
+            <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50" style={{ padding: '1rem' }}>
+              <div className="card" style={{ background: 'var(--mel-white)', maxWidth: '500px', width: '100%', margin: 'auto', borderRadius: 'var(--mel-border-radius)', boxShadow: '0 2px 8px rgba(34,34,34,0.12)', padding: '1.5em' }}>
                 <h2 style={{ color: 'var(--mel-gold)', fontFamily: 'var(--mel-font-title)', fontWeight: 'bold', marginBottom: '1em' }}>Editar Participante</h2>
                 <ParticipantsForm
                   onSubmit={handleEditSubmit}
@@ -176,8 +208,8 @@ const Participants: React.FC = () => {
           )}
 
           {deleteId !== null && (
-            <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-              <div className="card" style={{ background: 'var(--mel-white)', maxWidth: '400px', margin: 'auto', borderRadius: 'var(--mel-border-radius)', boxShadow: '0 2px 8px rgba(34,34,34,0.12)', padding: '2em' }}>
+            <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50" style={{ padding: '1rem' }}>
+              <div className="card" style={{ background: 'var(--mel-white)', maxWidth: '400px', width: '100%', margin: 'auto', borderRadius: 'var(--mel-border-radius)', boxShadow: '0 2px 8px rgba(34,34,34,0.12)', padding: '1.5em' }}>
                 <h2 style={{ color: 'var(--mel-gold)', fontFamily: 'var(--mel-font-title)', fontWeight: 'bold', marginBottom: '1em' }}>Confirmar exclusão</h2>
                 <p style={{ marginBottom: '1.5em', color: 'var(--mel-black)' }}>Tem certeza que deseja excluir esta participante?</p>
                 <button className="button" style={{ background: 'var(--mel-yellow)', marginRight: '1em' }} onClick={confirmDelete}>Excluir</button>

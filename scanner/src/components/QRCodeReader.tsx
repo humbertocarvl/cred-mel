@@ -13,7 +13,7 @@ const QRCodeReader: React.FC<{ onScan: (data: string) => void }> = ({ onScan }) 
 
   useEffect(() => {
     let mounted = true;
-    const COOLDOWN_MS = 1500;
+    const COOLDOWN_MS = 3000;
     let activeDecode = false;
 
     const handleResult = (resultText: string) => {
@@ -102,19 +102,20 @@ const QRCodeReader: React.FC<{ onScan: (data: string) => void }> = ({ onScan }) 
   }, [onScan, paused]);
 
   return (
-    <div className="relative bg-gray-100 p-4 rounded text-center">
-      <video ref={videoRef} style={{ width: '100%', height: 'auto' }} />
+    <div className="camera-container" style={{ position: 'relative', borderRadius: 12, overflow: 'hidden' }}>
+      <video ref={videoRef} style={{ width: '100%', height: '55vh', objectFit: 'cover', background: '#000' }} />
+
+      <div className="camera-overlay" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', top: 12, left: 12, color: '#fff', fontWeight: 600, textShadow: '0 1px 3px rgba(0,0,0,.6)' }}>Aponte a pulseira/QR</div>
+        <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', width: '70%', height: '42%', border: '3px dashed rgba(255,255,255,0.6)', borderRadius: 12 }} />
+      </div>
 
       {cameraError && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="bg-red-600 text-white px-4 py-2 rounded opacity-95">Erro câmera: {cameraError}</div>
-        </div>
+        <div className="camera-message error">Erro câmera: {cameraError}</div>
       )}
 
       {scanned && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="bg-green-600 text-white px-4 py-2 rounded opacity-90">Leitura: {scanned}</div>
-        </div>
+        <div className="camera-message success">Leitura: {scanned}</div>
       )}
     </div>
   );

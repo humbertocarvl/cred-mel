@@ -6,15 +6,19 @@ export default defineConfig({
   plugins: [react()],
   server: {
     // allow Vite to accept connections from ngrok proxy
-    host: 'localhost',
+    host: true,
     port: 5173,
+    allowedHosts: [
+      'histogenetic-afterwards-keri.ngrok-free.dev',
+      '.ngrok-free.dev'
+    ],
     hmr: {
       overlay: false,
     },
     proxy: {
       // proxy any /api requests to the local backend (adjust port if your backend runs elsewhere)
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'https://cred-mel-production.up.railway.app/',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api'),

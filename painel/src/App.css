@@ -8,10 +8,8 @@ body {
 }
 
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: left;
+  width: 100%;
+  min-height: 100vh;
 }
 
 .card {
@@ -30,10 +28,13 @@ body {
   padding: 0.75em 2em;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
+  font-family: var(--mel-font-title);
 }
 .button:hover {
   background: var(--mel-gold);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .table-mel {
@@ -50,6 +51,7 @@ body {
   font-family: var(--mel-font-title);
   font-weight: bold;
   background: var(--mel-gold);
+  white-space: nowrap;
 }
 .table-mel td {
   padding: 1em;
@@ -64,10 +66,9 @@ body {
 /* Layout helpers */
 .container {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding-left: 2vw;
-  padding-right: 2vw;
+  padding: 0 1.5rem;
 }
 
 .dashboard-title {
@@ -91,7 +92,7 @@ body {
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 24px;
   margin-bottom: 28px;
 }
@@ -112,6 +113,7 @@ body {
   color: var(--mel-gold);
   font-size: 1.05rem;
   margin-bottom: 0.4rem;
+  text-align: center;
 }
 .metric-number {
   font-size: 2.2rem;
@@ -138,114 +140,34 @@ body {
 
 .table-wrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-@media (max-width: 900px) {
-  #root {
-    padding: 1em;
-  }
-  .card {
-    padding: 1em;
-  }
-  .table-mel th, .table-mel td {
-    padding: 0.5em;
-    font-size: 0.95em;
-  }
-  .navbar {
-    flex-direction: column;
-    gap: 0.5em;
-    padding: 1em;
-  }
-}
-
-@media (max-width: 600px) {
-  #root {
-    padding: 0.5em;
-  }
-  .card {
-    padding: 0.5em;
-  }
-  .table-mel th, .table-mel td {
-    padding: 0.3em;
-    font-size: 0.9em;
-  }
-  .navbar {
-    flex-direction: column;
-    gap: 0.2em;
-    padding: 0.5em;
-  }
-  .metrics-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-/* remove extra bottom gap on last card inside container */
-.container > .card:last-child {
-  margin-bottom: 0;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-/* Navbar styles extracted from inline styles */
+/* Navbar styles */
 .navbar {
   background: var(--mel-gold);
   color: var(--mel-black);
   border-radius: 0;
-  /* Make navbar full-bleed across the viewport even when inside a centered root container */
   width: 100vw;
   margin-left: calc(50% - 50vw);
-  padding: 0.5rem 1vw; /* uniform vertical spacing */
+  padding: 0.5rem 1vw;
   margin-bottom: 1.25rem;
   font-family: var(--mel-font-title);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 8px rgba(34,34,34,0.08);
-  min-height: 64px; /* standard minimum height across pages */
+  min-height: 64px;
 }
 .navbar .inner {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1200px;
   display: flex;
   align-items: center;
-  justify-content: center; /* center links */
+  justify-content: center;
   position: relative;
   padding: 0;
-  min-height: 64px; /* ensure inner area keeps same height */
+  min-height: 64px;
 }
 .nav-links {
   display: flex;
@@ -292,28 +214,8 @@ body {
   margin: 4px 0;
 }
 
-/* Mobile behavior: hide centered links and show hamburger */
-@media (max-width: 800px) {
-  .nav-links { display: none; }
-  .hamburger { display: inline-block; }
-  .nav-logo img { height: 48px; }
-}
-
-/* When mobile menu is open show links stacked */
-.nav-links.open {
-  display: flex !important;
-  flex-direction: column;
-  gap: 0.75rem;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: var(--mel-gold);
-  padding: 1rem 1.2rem 1.5rem;
-  z-index: 40;
-}
 .nav-logo img {
-  height: 48px; /* slightly smaller, consistent across pages */
+  height: 48px;
   display: block;
 }
 .nav-logout {
@@ -324,11 +226,6 @@ body {
   background: none;
   border: none;
   padding: 0;
-}
-
-@media (max-width: 700px) {
-  .nav-logo img { height: 44px; }
-  .nav-links { gap: 0.6rem; }
 }
 
 /* Participant cards grid (Credenciadas) */
@@ -355,3 +252,91 @@ body {
   color: #666;
 }
 .participant-card .actions { margin-top: auto; display:flex; gap:0.5rem; }
+
+/* Responsividade Tablet */
+@media (max-width: 900px) {
+  .container {
+    padding: 0 1rem;
+  }
+  .card {
+    padding: 1em;
+  }
+  .table-mel th, .table-mel td {
+    padding: 0.5em;
+    font-size: 0.95em;
+  }
+  .metrics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+  }
+  .dashboard-title {
+    font-size: 1.6rem;
+  }
+  .page-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Responsividade Mobile */
+@media (max-width: 800px) {
+  .nav-links { display: none; }
+  .hamburger { display: inline-block; }
+  .nav-logo img { height: 48px; }
+}
+
+/* When mobile menu is open show links stacked */
+.nav-links.open {
+  display: flex !important;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--mel-gold);
+  padding: 1rem 1.2rem 1.5rem;
+  z-index: 40;
+}
+
+@media (max-width: 700px) {
+  .nav-logo img { height: 44px; }
+  .nav-links { gap: 0.6rem; }
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 0 0.75rem;
+  }
+  .card {
+    padding: 0.75em;
+  }
+  .table-mel th, .table-mel td {
+    padding: 0.4em;
+    font-size: 0.9em;
+  }
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-title {
+    font-size: 1.4rem;
+  }
+  .page-title {
+    font-size: 1.3rem;
+  }
+  .button {
+    padding: 0.6em 1.2em;
+    font-size: 0.95em;
+  }
+  
+  /* Garantir que inputs sejam 16px no mobile para evitar zoom no iOS */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Remove extra bottom gap on last card inside container */
+.container > .card:last-child {
+  margin-bottom: 0;
+}

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import api from '../services/api';
+import MobileCard from '../components/MobileCard';
+import MobileButton from '../components/MobileButton';
 
 const initialState = {
   name: '',
@@ -43,34 +45,30 @@ const Inscricao: React.FC = () => {
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Nova Inscrição</h1>
-      {success && <div className="text-green-600 mb-2">{success}</div>}
-      {error && <div className="text-red-600 mb-2">{error}</div>}
-      <form className="bg-white p-4 rounded shadow" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input name="name" value={form.name} onChange={handleChange} placeholder="Nome completo" className="border p-2 rounded" required />
-          <input name="city" value={form.city} onChange={handleChange} placeholder="Cidade" className="border p-2 rounded" required />
-          <input name="state" value={form.state} onChange={handleChange} placeholder="Estado" className="border p-2 rounded" required />
-          <input name="email" value={form.email} onChange={handleChange} placeholder="E-mail" className="border p-2 rounded" required />
-          <input name="whatsapp" value={form.whatsapp} onChange={handleChange} placeholder="Telefone" className="border p-2 rounded" required />
-          <label className="flex items-center">
-            <input type="checkbox" name="contribuicao" checked={form.contribuicao} onChange={handleChange} className="mr-2" />
-            Contribuição
-          </label>
-          <label className="flex items-center">
-            <input type="checkbox" name="alojamento" checked={form.alojamento} onChange={handleChange} className="mr-2" />
-            Alojamento
-          </label>
-          <select name="tipoInscricao" value={form.tipoInscricao} onChange={handleChange} className="border p-2 rounded" required>
-            <option value="comunicacao">Comunicação</option>
-            <option value="organizacao">Organização</option>
-            <option value="parlamentar">Parlamentar</option>
-            <option value="participante">Participante</option>
-          </select>
-        </div>
-        <button type="submit" className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Salvar</button>
-      </form>
+    <div className="container-mobile">
+      <MobileCard>
+        <h1 className="text-2xl font-bold mb-4">Nova Inscrição</h1>
+        {success && <div className="text-green-600 mb-2">{success}</div>}
+        {error && <div className="text-red-600 mb-2">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: 'grid', gap: 10 }}>
+            <input name="name" value={form.name} onChange={handleChange} placeholder="Nome completo" className="border p-2 rounded" required />
+            <input name="city" value={form.city} onChange={handleChange} placeholder="Cidade" className="border p-2 rounded" required />
+            <input name="state" value={form.state} onChange={handleChange} placeholder="Estado" className="border p-2 rounded" required />
+            <input name="email" value={form.email} onChange={handleChange} placeholder="E-mail" className="border p-2 rounded" required />
+            <input name="whatsapp" value={form.whatsapp} onChange={handleChange} placeholder="Telefone" className="border p-2 rounded" required />
+            <label className="flex items-center"><input type="checkbox" name="contribuicao" checked={form.contribuicao} onChange={handleChange} className="mr-2" />Contribuição</label>
+            <label className="flex items-center"><input type="checkbox" name="alojamento" checked={form.alojamento} onChange={handleChange} className="mr-2" />Alojamento</label>
+            <select name="tipoInscricao" value={form.tipoInscricao} onChange={handleChange} className="border p-2 rounded" required>
+              <option value="comunicacao">Comunicação</option>
+              <option value="organizacao">Organização</option>
+              <option value="parlamentar">Parlamentar</option>
+              <option value="participante">Participante</option>
+            </select>
+          </div>
+          <MobileButton type="submit" full className="mt-4">Salvar</MobileButton>
+        </form>
+      </MobileCard>
     </div>
   );
 };

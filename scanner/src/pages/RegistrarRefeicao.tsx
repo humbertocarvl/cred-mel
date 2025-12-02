@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import api from '../services/api';
 import QRCodeReader from '../components/QRCodeReader';
+import MobileCard from '../components/MobileCard';
+import MobileButton from '../components/MobileButton';
+import ParticipantCardMobile from '../components/ParticipantCardMobile';
 
 interface MealOption {
   id: number;
@@ -40,10 +43,22 @@ const RegistrarRefeicao: React.FC<{ mealOption: MealOption; onBack: () => void }
         setError('Esta participante já retirou esta refeição.');
         return;
       }
-      // Verificar contribuição
-      if (!p.contribuicao) {
+      // Verificar contribuição e registrar automaticamente se contribuiu
+      if (p.contribuicao) {
+        // Contribuiu: registrar automaticamente
+        await api.post('/meals', {
+          participantId: p.id,
+          mealOptionId: mealOption.id,
+          date: new Date().toISOString(),
+        });
+        setSuccess(`✓ Refeição registrada para ${p.name}`);
+        setQrValue('');
+        setParticipant(null);
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        // Não contribuiu: pedir confirmação
         setShowConfirm(true);
-        setError('Participante não pagou a contribuição. Confirme a retirada.');
+        setError('⚠️ Participante não pagou a contribuição. Confirme a retirada.');
       }
     } catch {
       setError('Erro ao buscar participante.');
@@ -70,25 +85,28 @@ const RegistrarRefeicao: React.FC<{ mealOption: MealOption; onBack: () => void }
   }
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Registrar retirada - {mealOption.name}</h2>
-      {success && <div className="text-green-600 mb-2">{success}</div>}
-      {error && <div className="text-red-600 mb-2">{error}</div>}
-      <QRCodeReader onScan={handleScan} />
-      <div className="mt-2">Valor lido: <span className="font-mono">{qrValue}</span></div>
-      {participant && (
-        <div className="mt-4 p-2 border rounded bg-gray-50">
-          <div><strong>Nome:</strong> {participant.name}</div>
-          <div><strong>Contribuição:</strong> {participant.contribuicao ? 'Sim' : 'Não'}</div>
-        </div>
-      )}
-      {showConfirm && (
-        <div className="mt-4">
-          <button className="bg-green-600 text-white px-4 py-2 rounded mr-2" onClick={registrarRefeicao}>Confirmar retirada</button>
-          <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={() => { setShowConfirm(false); setQrValue(''); setParticipant(null); }}>Cancelar</button>
-        </div>
-      )}
-      <button className="mt-6 bg-gray-600 text-white px-4 py-2 rounded" onClick={onBack}>Voltar</button>
+    <div className="container-mobile">
+      <MobileCard>
+        <h2 className="text-xl font-bold mb-4">Registrar retirada - {mealOption.name}</h2>
+        {success && <div className="text-green-600 mb-2">{success}</div>}
+        {error && <div className="text-red-600 mb-2">{error}</div>}
+        <QRCodeReader onScan={handleScan} />
+        <div className="mt-2">Valor lido: <span className="font-mono">{qrValue}</span></div>
+        {participant && (
+          <div className="mt-4">
+            <ParticipantCardMobile participant={participant} />
+          </div>
+        )}
+
+        {showConfirm && (
+          <div className="mt-4" style={{ display: 'flex', gap: 8 }}>
+            <MobileButton onClick={registrarRefeicao} className="" full>Confirmar retirada</MobileButton>
+            <MobileButton onClick={() => { setShowConfirm(false); setQrValue(''); setParticipant(null); }} className="" full>Cancelar</MobileButton>
+          </div>
+        )}
+
+        <MobileButton onClick={onBack} className="mt-4">Voltar</MobileButton>
+      </MobileCard>
     </div>
   );
 };
