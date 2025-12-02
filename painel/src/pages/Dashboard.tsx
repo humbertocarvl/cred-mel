@@ -46,15 +46,30 @@ const Dashboard: React.FC = () => {
           alojadas: participants.filter((p: any) => p.credenciada && p.alojamento).length
         });
 
-        // Agrupar refeições por mealOptionId
-        const mealMap = new Map<number, { name: string; participants: Array<{ id: number; name: string; email: string }> }>();
-        
-        console.log('Iniciando processamento de meals...');
-        for (const meal of meals) {
-          console.log('Processando meal:', meal);
-          const option = mealOptions.find((o: any) => o.id === meal.mealOptionId);
-          console.log('Option encontrada:', option);
-          if (!option) continue;
+        // Verificar se meals tem estrutura antiga (type, count) ou nova (mealOptionId, participantId)
+        const isOldStructure = meals.length > 0 && meals[0].type !== undefined;
+        console.log('Estrutura antiga detectada:', isOldStructure);
+
+        let details: MealDetail[] = [];
+
+        if (isOldStructure) {
+          // Estrutura antiga: {type, count, date}
+          details = meals.map((meal: any) => ({
+            mealOptionId: 0, // Não tem ID na estrutura antiga
+            mealOptionName: meal.type,
+            count: meal.count,
+            participants: [] // Não tem lista de participantes na estrutura antiga
+          }));
+        } else {
+          // Estrutura nova: processar normalmente
+          const mealMap = new Map<number, { name: string; participants: Array<{ id: number; name: string; email: string }> }>();
+          
+          console.log('Iniciando processamento de meals...');
+          for (const meal of meals) {
+            console.log('Processando meal:', meal);
+            const option = mealOptions.find((o: any) => o.id === meal.mealOptionId);
+            console.log('Option encontrada:', option);
+            if (!option) continue;
           
           if (!mealMap.has(meal.mealOptionId)) {
             mealMap.set(meal.mealOptionId, { name: option.name, participants: [] });
@@ -70,12 +85,13 @@ const Dashboard: React.FC = () => {
           }
         }
 
-        const details: MealDetail[] = Array.from(mealMap.entries()).map(([id, data]) => ({
+        details = Array.from(mealMap.entries()).map(([id, data]) => ({
           mealOptionId: id,
           mealOptionName: data.name,
           count: data.participants.length,
           participants: data.participants
         }));
+      }
 
         console.log('MealDetails final:', details);
         setMealDetails(details);
@@ -125,10 +141,14 @@ const Dashboard: React.FC = () => {
                     className="button" 
                     style={{ background: expandedMeal === meal.mealOptionId ? 'var(--mel-gray)' : 'var(--mel-yellow)', padding: '0.5em 1em', fontSize: '0.9em' }}
                     onClick={() => setExpandedMeal(expandedMeal === meal.mealOptionId ? null : meal.mealOptionId)}
+                    disabled={meal.participants.length === 0}
                   >
                     {expandedMeal === meal.mealOptionId ? 'Ocultar participantes' : 'Ver participantes'}
                   </button>
-                  {expandedMeal === meal.mealOptionId && (
+                  {meal.participants.length === 0 && (
+                    <p style={{ fontSize: '0.9em', color: '#666', marginTop: '0.5em' }}>Lista de participantes não disponível (estrutura antiga)</p>
+                  )}
+                  {expandedMeal === meal.mealOptionId && meal.participants.length > 0 && (
                     <div style={{ marginTop: '1rem', maxHeight: '300px', overflowY: 'auto', border: '1px solid #eee', borderRadius: '4px', padding: '0.5rem' }}>
                       {meal.participants.map((p) => (
                         <div key={p.id} style={{ padding: '0.5rem', borderBottom: '1px solid #f0f0f0' }}>
