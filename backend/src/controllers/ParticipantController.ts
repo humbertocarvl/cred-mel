@@ -43,8 +43,25 @@ export const createParticipant = async (req: Request, res: Response) => {
 };
 
 export const updateParticipant = async (req: Request, res: Response) => {
-  // TODO: Atualizar participante
-  res.json({});
+  try {
+    const idParam = req.params.id;
+    if (!idParam) {
+      return res.status(400).json({ message: 'ID é obrigatório' });
+    }
+    
+    const id = parseInt(idParam, 10);
+    const updateData = req.body;
+    
+    const participant = await prisma.participant.update({
+      where: { id },
+      data: updateData
+    });
+    
+    res.json(participant);
+  } catch (error: any) {
+    console.error('Erro ao atualizar participante:', error);
+    res.status(500).json({ error: 'Erro ao atualizar participante', details: error?.message || error });
+  }
 };
 
 // POST /api/participants/bulk

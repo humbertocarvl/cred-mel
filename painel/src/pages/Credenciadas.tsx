@@ -197,12 +197,6 @@ const Credenciadas: React.FC = () => {
             </Card>
           </div>
         )}
-              <p style={{ color: 'var(--mel-black)', fontWeight: 'bold', marginBottom: '1em' }}>Confirma a exclusão?</p>
-              <button onClick={confirmDelete} className="button" style={{ background: 'var(--mel-yellow)', marginRight: '1em' }}>Sim</button>
-              <button onClick={cancelDelete} className="button" style={{ background: 'var(--mel-gray)' }}>Não</button>
-            </Card>
-          </div>
-        )}
       </div>
     </div>
   );
