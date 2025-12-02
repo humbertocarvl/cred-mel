@@ -80,10 +80,10 @@ export const bulkCreateParticipants = async (req: Request, res: Response) => {
 
       valid.push({
         name: String(r.name),
-        city: r.city ?? null,
-        state: r.state ?? null,
-        email: r.email ? String(r.email).trim().toLowerCase() : null,
-        whatsapp: r.whatsapp ?? null,
+        city: r.city ? String(r.city) : '',
+        state: r.state ? String(r.state) : '',
+        email: r.email ? String(r.email).trim().toLowerCase() : '',
+        whatsapp: r.whatsapp ? String(r.whatsapp) : '',
         contribuicao: !!r.contribuicao,
         alojamento: !!r.alojamento,
         tipoInscricao: tipo,
