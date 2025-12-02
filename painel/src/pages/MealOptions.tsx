@@ -73,9 +73,11 @@ const MealOptions: React.FC = () => {
     if (!confirm('Tem certeza que deseja excluir esta refeição?')) return;
     api.delete(`/meal-options/${id}`).then(() => {
       setOptions(options.filter(opt => opt.id !== id));
+      alert('Refeição excluída com sucesso!');
     }).catch(err => {
       console.error('Erro ao excluir refeição:', err);
-      alert('Erro ao excluir refeição');
+      const errorMessage = err?.response?.data?.message || 'Erro ao excluir refeição';
+      alert(errorMessage);
     });
   }
 
