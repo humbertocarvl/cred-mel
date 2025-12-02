@@ -43,8 +43,38 @@ export const createParticipant = async (req: Request, res: Response) => {
 };
 
 export const updateParticipant = async (req: Request, res: Response) => {
-  // TODO: Atualizar participante
-  res.json({});
+  try {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) return res.status(400).json({ message: 'ID inválido' });
+
+    const { name, city, state, email, whatsapp, contribuicao, alojamento, tipoInscricao, credenciada, credencial } = req.body;
+
+    const data: any = {};
+    if (typeof name === 'string') data.name = name;
+    if (typeof city === 'string') data.city = city;
+    if (typeof state === 'string') data.state = state;
+    if (typeof email === 'string') data.email = email;
+    if (typeof whatsapp === 'string') data.whatsapp = whatsapp;
+    if (typeof contribuicao !== 'undefined') data.contribuicao = !!contribuicao;
+    if (typeof alojamento !== 'undefined') data.alojamento = !!alojamento;
+    if (typeof tipoInscricao === 'string') data.tipoInscricao = tipoInscricao as any;
+
+    // Credenciamento: se for true, grava timestamp; se false, remove timestamp
+    if (typeof credenciada !== 'undefined') {
+      data.credenciada = !!credenciada;
+      if (credenciada) data.credenciada_em = new Date();
+      else data.credenciada_em = null;
+    }
+
+    if (typeof credencial === 'string') data.credencial = credencial;
+
+    const updated = await prisma.participant.update({ where: { id }, data });
+    return res.json(updated);
+  } catch (err: any) {
+    console.error('Erro ao atualizar participante:', err);
+    if (err.code === 'P2025') return res.status(404).json({ message: 'Participante não encontrado' });
+    return res.status(500).json({ message: 'Erro ao atualizar participante', details: err?.message || err });
+  }
 };
 
 // POST /api/participants/bulk
