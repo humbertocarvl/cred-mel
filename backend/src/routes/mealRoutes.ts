@@ -6,7 +6,18 @@ const router = Router();
 // GET /api/meals - Listar todas as refeições
 router.get('/', async (req: Request, res: Response) => {
   try {
+    const { participantId, mealOptionId } = req.query;
+    const where: any = {};
+    
+    if (participantId) {
+      where.participantId = parseInt(participantId as string, 10);
+    }
+    if (mealOptionId) {
+      where.mealOptionId = parseInt(mealOptionId as string, 10);
+    }
+    
     const meals = await prisma.meal.findMany({
+      where,
       include: {
         participant: true,
         mealOption: true

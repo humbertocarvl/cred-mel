@@ -37,6 +37,8 @@ const Dashboard: React.FC = () => {
         console.log('Participantes:', participants.length);
         console.log('Meals:', meals.length);
         console.log('Meal Options:', mealOptions.length);
+        console.log('Meals data:', meals);
+        console.log('MealOptions data:', mealOptions);
 
         setTotals({
           inscritas: participants.length,
@@ -47,8 +49,11 @@ const Dashboard: React.FC = () => {
         // Agrupar refeições por mealOptionId
         const mealMap = new Map<number, { name: string; participants: Array<{ id: number; name: string; email: string }> }>();
         
+        console.log('Iniciando processamento de meals...');
         for (const meal of meals) {
+          console.log('Processando meal:', meal);
           const option = mealOptions.find((o: any) => o.id === meal.mealOptionId);
+          console.log('Option encontrada:', option);
           if (!option) continue;
           
           if (!mealMap.has(meal.mealOptionId)) {
@@ -72,6 +77,7 @@ const Dashboard: React.FC = () => {
           participants: data.participants
         }));
 
+        console.log('MealDetails final:', details);
         setMealDetails(details);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
