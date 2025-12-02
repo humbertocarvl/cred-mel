@@ -3,14 +3,19 @@ import prisma from '../config/prismaClient';
 
 export const getParticipants = async (req: Request, res: Response) => {
   try {
-    // support query param ?credenciada=true to return only credentialed participants
-    const { credenciada } = req.query;
+    // support query params: ?credenciada=true and ?credencial=<value>
+    const { credenciada, credencial } = req.query;
     const where: any = {};
 
     if (typeof credenciada === 'string') {
       const val = credenciada.trim().toLowerCase();
       if (val === 'true' || val === '1') where.credenciada = true;
       else if (val === 'false' || val === '0') where.credenciada = false;
+    }
+
+    if (typeof credencial === 'string' && credencial.trim() !== '') {
+      // exact match on credential string
+      where.credencial = credencial.trim();
     }
 
     const participants = await prisma.participant.findMany({ where });
