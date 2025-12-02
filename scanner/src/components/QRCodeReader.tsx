@@ -8,6 +8,10 @@ const QRCodeReader: React.FC<{ onScan: (data: string) => void }> = ({ onScan }) 
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
 
   useEffect(() => {
+    // cooldown to avoid repeated/on-repeat scans that make UI flicker
+    const COOLDOWN_MS = 1500; // ignore repeated scans for 1.5s
+    const lastRef = { value: '', time: 0 } as { value: string; time: number };
+
     html5QrCodeRef.current = new Html5Qrcode(qrCodeRegionId);
     html5QrCodeRef.current.start(
       { facingMode: 'environment' },
@@ -16,7 +20,16 @@ const QRCodeReader: React.FC<{ onScan: (data: string) => void }> = ({ onScan }) 
         qrbox: 250,
       },
       (decodedText) => {
-        onScan(decodedText);
+        try {
+          const now = Date.now();
+          // if same value scanned recently, ignore
+          if (decodedText === lastRef.value && now - lastRef.time < COOLDOWN_MS) return;
+          lastRef.value = decodedText;
+          lastRef.time = now;
+          onScan(decodedText);
+        } catch (e) {
+          // swallow errors from handler
+        }
       },
       (errorMessage) => {
         // Ignorar erros de leitura
