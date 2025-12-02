@@ -39,7 +39,12 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.get('/api/_health', (req: Request, res: Response) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.status(200).json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    version: '2.0.0-meals-fixed',
+    prismaModels: Object.keys(prisma).filter(k => !k.startsWith('_') && !k.startsWith('$'))
+  });
 });
 
 // Rotas principais

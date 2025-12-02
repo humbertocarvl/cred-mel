@@ -25,11 +25,13 @@ const Dashboard: React.FC = () => {
       setLoading(true);
       try {
         console.log('Carregando dados do dashboard...');
+        console.log('API URL:', import.meta.env.VITE_API_URL);
         const [participantsRes, mealsRes, mealOptionsRes] = await Promise.all([
           api.get('/participants'),
           api.get('/meals'),
           api.get('/meal-options')
         ]);
+        console.log('Resposta completa de meals:', JSON.stringify(mealsRes.data, null, 2));
         const participants = participantsRes.data;
         const meals = mealsRes.data;
         const mealOptions = mealOptionsRes.data;
